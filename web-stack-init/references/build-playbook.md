@@ -84,6 +84,28 @@ done — it catches module resolution and RSC boundary errors that `tsc` misses.
 - Animate `transform` and `opacity`. Animating layout properties (width, height,
   top) causes jank — use `layout` transitions instead.
 
+### GSAP, alongside Motion
+
+- Load the matching `gsap-*` skill before writing GSAP code — `gsap-core`,
+  `gsap-timeline`, `gsap-scrolltrigger`, `gsap-plugins`, `gsap-react` for
+  `useGSAP` and cleanup specifically. Don't recall the API from memory.
+- **Never both engines on one element** — see `gotchas.md`'s decision rule.
+  Motion for React-state-driven work, GSAP for timeline choreography or a
+  plugin Motion doesn't have (`SplitText`, `Flip`, `Draggable`, `MorphSVG`,
+  `ScrollSmoother`).
+- For a **signature moment** the design brief calls out specifically (a hero
+  effect, one standout scroll interaction) where the `gsap-*` skills' API
+  knowledge doesn't cover the *technique* you need, check
+  [Codrops](https://tympanus.net/codrops/) for a reference implementation
+  before improvising — but reimplement against this project's own
+  data/tokens, don't copy source wholesale (`gotchas.md` has the copyright
+  note). Reach for this on the one or two sections that actually warrant it,
+  not as a first move on every section.
+- **Sora UI** (`@soralabs`) is often the faster path to the same result — its
+  primitives are pre-built on Motion and GSAP both. Check whether a
+  `@soralabs/*` component already does what a Codrops technique would
+  otherwise require hand-building.
+
 ---
 
 ## 6. Verification — and its limits

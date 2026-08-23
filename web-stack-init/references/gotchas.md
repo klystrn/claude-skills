@@ -52,6 +52,35 @@ automatically and will hand you the redirect target to re-fetch.
 
 ---
 
+## Sora UI (`@soralabs`)
+
+**Every add re-prompts to overwrite `src/lib/utils.ts`**, even when its own
+copy is byte-identical to what's already there (verified: it is — the
+registry just declares `utils.ts` as a shared dependency of every component,
+so the CLI always offers to write it). Safe to accept (`--overwrite`) or
+decline; neither breaks anything. Don't mistake the prompt for a real
+conflict.
+
+**Component names**, like Bklit, come from the registry index, not guesswork:
+
+```bash
+curl -sL https://ui.soralabs.io.vn/r/registry.json
+```
+
+**Its own docs MCP is a separate, optional add-on** — `claude mcp add
+--transport http sora-ui https://mcp.soralabs.io.vn/mcp` — distinct from the
+shadcn MCP that installs components. Blocked from automation the same way
+Motion's MCP servers are (writing straight to `.mcp.json` hits the
+permission classifier); hand the user the command, same as `motion-ai`.
+
+**Built on Motion and GSAP both** — most primitives are Motion, some
+scroll-driven text effects are GSAP. Check which before extending a
+component: don't add a GSAP animation inside a component whose surrounding
+motion is Motion-driven, or the same fight-over-the-DOM-node problem below
+applies inside a single file, not just across sections.
+
+---
+
 ## KokonutUI (`@kokonutui`)
 
 **`shadcn mcp init` does not add the registry.** The MCP server and the registry
@@ -166,3 +195,20 @@ for sequencing, `gsap-scrolltrigger` for scroll work, `gsap-plugins` before
 registering any plugin, `gsap-react` for the `useGSAP` hook and cleanup
 specifically (a raw `useEffect` + manual `.kill()` is the wrong pattern once
 this skill is installed — `useGSAP` handles context/cleanup correctly).
+
+**For a technique you can't get from the `gsap-*` skills alone** — a specific
+visual effect, not just an API — [Codrops](https://tympanus.net/codrops/) is
+the reference site to check, particularly its
+[GSAP tag](https://tympanus.net/codrops/tag/gsap/) and
+[Demos hub](https://tympanus.net/codrops/hub/author/gsap/). It's not
+installable and not a registry — `WebFetch` a specific tutorial URL when a
+request needs a named technique (a particular scroll-mask effect, a
+carousel style, an SVG-morph pattern) that a plain API lookup won't produce.
+
+Treat what comes back as **technique reference, not source to copy
+verbatim** — Codrops demos carry their own licensing per post (often
+CodePen-embedded, not uniformly MIT), and the copyright rule in this skill's
+system prompt already caps any single quote at under 15 words. Read the
+approach, reimplement it against this project's own data/tokens/components,
+and cite the source in a code comment only if it materially shaped the
+technique — not as a matter of course.

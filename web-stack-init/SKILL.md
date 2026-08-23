@@ -1,6 +1,6 @@
 ---
 name: web-stack-init
-description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Impeccable) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
+description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Sora UI, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, Sora UI, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
 ---
 
 # Web Stack Init
@@ -58,11 +58,27 @@ bash scripts/setup-stack.sh --scaffold portfolio
 bash scripts/setup-stack.sh
 ```
 
-It scaffolds (if asked), runs `shadcn init` with defaults, registers **both**
-the `@bklit` and `@kokonutui` registries, verifies each one actually resolves,
-installs the bklit-ui skill and shadcn MCP, installs `motion`, installs `gsap`
-plus the official GreenSock agent skills, patches the known Bklit import bug,
-and installs Impeccable project-scoped.
+It scaffolds (if asked), runs `shadcn init` with defaults, registers **all
+three** shadcn registries (`@bklit`, `@kokonutui`, `@soralabs`), verifies each
+one actually resolves, installs the bklit-ui skill and shadcn MCP, installs
+`motion`, installs `gsap` plus the official GreenSock agent skills, patches
+the known Bklit import bug, and installs Impeccable project-scoped.
+
+**Sora UI (`@soralabs`)** is a fourth registry, same pattern as Bklit/
+KokonutUI — shadcn-compatible, `npx shadcn@latest add @soralabs/<name>` —
+but its primitives are built on Motion *and* GSAP both, so it's the natural
+place to reach once GSAP is in the stack. Every add re-prompts to overwrite
+`src/lib/utils.ts` even when identical; see `gotchas.md`, it's harmless. Its
+own docs MCP (`sora-ui`, separate from the shadcn MCP) is optional and hits
+the same permission-classifier wall as Motion's — hand the user the `claude
+mcp add` command, don't attempt to write `.mcp.json` directly.
+
+**Codrops** (tympanus.net/codrops) isn't installed — it's a reference site
+for GSAP technique research, not a registry or package. `WebFetch` a
+specific tutorial URL when a request needs a named visual technique the
+`gsap-*` skills' API knowledge alone won't produce. Treat what comes back as
+technique reference to reimplement, not source to copy verbatim — see
+`gotchas.md` for the copyright caveat.
 
 **Impeccable installs cleanly everywhere, including cloud sessions** — unlike
 the other steps, it needs no filesystem transplant. `npx impeccable install
@@ -183,6 +199,8 @@ from section-specific ones before diagnosing — see the reference for how.
 | Impeccable install failed | Retry `npx impeccable install --scope=project --providers=claude`; needs Node 22.12+ |
 | `gsap` install failed | Retry `npm install gsap` |
 | gsap-skills clone failed | Retry manually: `git clone --depth 1 https://github.com/greensock/gsap-skills.git /tmp/gsap-skills && cp -r /tmp/gsap-skills/skills/gsap-* .claude/skills/` |
+| `@soralabs/... not found` | Registry entry missing from `components.json` — re-run the script |
+| Sora UI add re-prompts on `utils.ts` every time | Expected — its own copy is identical, just always declared as a shared dep; safe either way |
 
 ---
 
@@ -210,6 +228,16 @@ Two different portability stories:
   installed once and committed, every future clone of that repo — including a
   cloud checkout — has it. No separate bootstrap repo needed, unlike
   `web-stack-init` itself.
+- **`@soralabs` (Sora UI) travels for free** — it's one key in
+  `components.json`, committed with everything else, no filesystem transplant
+  needed. Its optional docs MCP is the exception: same as `motion-ai`, `claude
+  mcp add --transport http sora-ui ...` needs a human at a real terminal and
+  can't complete in an unattended cloud session — but skipping it costs
+  nothing functionally, since the shadcn MCP (already configured) can still
+  install `@soralabs/*` components without it.
+- **Codrops needs nothing installed at all** — it's consulted via `WebFetch`
+  at the point of need, works identically local or cloud, no portability
+  story to worry about.
 - **Browser-pane verification limits are environment-wide, not
   machine-wide** — no `requestAnimationFrame`, no `ResizeObserver`,
   `AnimatePresence` exits that never unmount (see `gotchas.md`). A cloud

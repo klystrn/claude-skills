@@ -89,6 +89,8 @@ skills, credentials/awards, testimonials, contact, blog/writing, photography.
 - Charts as a feature — Bklit charts central to the design
 - Light accents — mostly hand-built, registry components where they earn it
 - KokonutUI-forward — lean on its blocks for cards/sections/interactions
+- Sora UI-forward — its Motion/GSAP-driven primitives (text effects, scroll
+  interactions) for the signature moments, hand-built or lighter registries elsewhere
 - Whatever fits best per section — no quota either way
 
 **Detail depth** *(portfolios and project-led sites)*

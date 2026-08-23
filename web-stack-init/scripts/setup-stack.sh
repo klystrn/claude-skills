@@ -120,7 +120,7 @@ fi
 # ---------------------------------------------------------------------------
 # 3. Register both shadcn registries
 # ---------------------------------------------------------------------------
-log "Registering shadcn registries (@bklit, @kokonutui)"
+log "Registering shadcn registries (@bklit, @kokonutui, @soralabs)"
 
 node <<'NODE_EOF'
 const fs = require('fs');
@@ -136,12 +136,13 @@ try {
 
 config.registries = config.registries || {};
 
-// Both registries are needed. `shadcn mcp init` does NOT add @kokonutui —
-// that was a long-standing gap in this script; the MCP server and the
-// registry entry are independent things.
+// All three registries are needed. `shadcn mcp init` does NOT add any of
+// them — that was a long-standing gap in this script; the MCP server and
+// registry entries are independent things.
 const wanted = {
   '@bklit':     'https://ui.bklit.com/r/{name}.json',
   '@kokonutui': 'https://kokonutui.com/r/{name}.json',
+  '@soralabs':  'https://ui.soralabs.io.vn/r/{name}.json',
 };
 
 let changed = false;
@@ -162,7 +163,7 @@ if (changed) {
 NODE_EOF
 
 # ---------------------------------------------------------------------------
-# 4. Verify both registries actually resolve
+# 4. Verify all three registries actually resolve
 # ---------------------------------------------------------------------------
 log "Verifying registries are reachable"
 
@@ -170,6 +171,7 @@ node <<'NODE_EOF'
 const targets = [
   ['@bklit',     'https://bklit.com/r/registry.json'],
   ['@kokonutui', 'https://kokonutui.com/r/registry.json'],
+  ['@soralabs',  'https://ui.soralabs.io.vn/r/registry.json'],
 ];
 
 (async () => {
@@ -319,13 +321,22 @@ else
 fi
 cat <<'EOF'
 
-  Remaining step — MUST be run by the user in a real terminal:
+  Remaining steps — MUST be run by the user in a real terminal, or via the
+  `claude` CLI directly (not available to this script):
 
       cd <project> && npx motion-ai
 
   Choose: project scope, and Claude Code as the agent.
   `motion-ai` refuses piped stdin, and editing .mcp.json to add the Motion
   servers by hand is blocked by Claude Code's permission classifier.
+
+      claude mcp add --transport http sora-ui https://mcp.soralabs.io.vn/mcp
+
+  Optional — adds Sora UI's docs MCP (component search/usage over MCP
+  instead of browsing ui.soralabs.io.vn by hand). Same permission-classifier
+  wall as Motion blocks writing this into .mcp.json directly; `claude mcp add`
+  is the only path. The @soralabs shadcn registry itself needs neither this
+  command nor any manual step — it's already registered and verified above.
 EOF
 
 exit 0
