@@ -114,3 +114,55 @@ non-animated read) rather than the DOM node count when auditing this pattern.
 Verify with `npm run build` (catches what `tsc` misses: module resolution, RSC
 boundaries) plus `get_page_text` / `read_page` for content. Then tell the user
 plainly that motion, charts, and exit-driven unmounts need their eyes.
+
+---
+
+## Motion vs. GSAP — pick one per element, never both
+
+Once GSAP is in the stack alongside Motion, the failure mode isn't "wrong
+choice," it's **two animation engines fighting over the same DOM node** —
+both write directly to `transform`/`opacity`, so if Motion's React render
+cycle and a GSAP tween both touch the same element, whichever wrote last wins
+that frame and the other's state silently desyncs. This shows up as
+animations that work in isolation and glitch the moment they're combined.
+
+**Rule: decide per element, at the point you write it, not once globally.**
+A page can use both — just never on the same node, and prefer one library
+per *section* so the boundary is obvious to the next person reading the code.
+
+Reach for **Motion** (`motion/react`) when:
+- The element is already React-state-driven (conditional render, `layout`
+  animation, `AnimatePresence` enter/exit) — Motion is built for this,
+  GSAP fights the React render cycle here.
+- It's a simple, declarative reveal — `whileInView`, hover/tap variants.
+- The rest of the section already uses Motion — consistency beats a marginal
+  capability gain from switching mid-section.
+
+Reach for **GSAP** when:
+- It's **timeline-heavy choreography** — many elements with precise relative
+  timing/labels (`gsap.timeline()` + position parameters). Motion can do
+  this but GSAP's timeline API is built for exactly this and stays readable
+  at higher complexity.
+- It needs a **plugin with no Motion equivalent** — `SplitText` (character/
+  word/line splitting with reflow handling), `MorphSVG`, `DrawSVG`,
+  `Draggable` with inertia, `Flip` (FLIP-technique layout transitions across
+  arbitrary DOM changes, not just React state), `ScrollSmoother`.
+- It's **imperative/vanilla-DOM territory** — canvas, WebGL hooks, or
+  anything manipulating elements outside React's own tree.
+
+**ScrollTrigger vs. Motion's `useScroll`**: both do scroll-linked animation.
+Motion's `useScroll`/`useTransform` is what this project already uses for the
+timeline and hero (see `build-playbook.md`'s patterns list) — keep using it
+for straightforward progress-mapping. Reach for GSAP's ScrollTrigger instead
+when the ask specifically needs its named features: `pin` with automatic
+spacer-element handling, `scrub` with a numeric lag (not just 0/1/true),
+`ScrollSmoother` for smoothed native scroll, or batch-triggering many
+elements from one config object. Don't install ScrollTrigger to duplicate
+something `useScroll` already does cleanly in this codebase.
+
+**Before writing GSAP code**, load the relevant `gsap-*` skill rather than
+recalling the API from memory — `gsap-core` for basic tweens, `gsap-timeline`
+for sequencing, `gsap-scrolltrigger` for scroll work, `gsap-plugins` before
+registering any plugin, `gsap-react` for the `useGSAP` hook and cleanup
+specifically (a raw `useEffect` + manual `.kill()` is the wrong pattern once
+this skill is installed — `useGSAP` handles context/cleanup correctly).

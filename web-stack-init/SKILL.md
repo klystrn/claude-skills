@@ -1,6 +1,6 @@
 ---
 name: web-stack-init
-description: Sets up the personal web-dev toolkit (Motion, Bklit UI, KokonutUI, Impeccable) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, Bklit, KokonutUI, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
+description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Impeccable) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
 ---
 
 # Web Stack Init
@@ -60,8 +60,9 @@ bash scripts/setup-stack.sh
 
 It scaffolds (if asked), runs `shadcn init` with defaults, registers **both**
 the `@bklit` and `@kokonutui` registries, verifies each one actually resolves,
-installs the bklit-ui skill and shadcn MCP, installs `motion`, patches the
-known Bklit import bug, and installs Impeccable project-scoped.
+installs the bklit-ui skill and shadcn MCP, installs `motion`, installs `gsap`
+plus the official GreenSock agent skills, patches the known Bklit import bug,
+and installs Impeccable project-scoped.
 
 **Impeccable installs cleanly everywhere, including cloud sessions** — unlike
 the other steps, it needs no filesystem transplant. `npx impeccable install
@@ -71,6 +72,25 @@ travels with the repo afterward since it's now committed inside `.claude/`.
 After it installs, tell the user to run `/impeccable init` (or invoke it via the
 Skill tool directly) to capture `PRODUCT.md` — that step does use
 `AskUserQuestion`, which works fine in a cloud session.
+
+**GSAP is both a library and 8 official agent skills**
+(`greensock/gsap-skills`: core, timeline, scrolltrigger, plugins, utils, react,
+performance, frameworks). The npm package (`gsap`) is trivial and free — the
+whole plugin suite (ScrollTrigger, SplitText, Flip, Draggable, MorphSVG, ...)
+went free when Webflow acquired GreenSock and opened it up in 2025, no license
+key needed. The skills only ship via `/plugin marketplace add
+greensock/gsap-skills`, which — like Impeccable's marketplace path — refuses to
+run non-interactively. The script works around it exactly like this skill
+works around its own cloud-portability problem: `git clone --depth 1` the repo
+into a temp dir, copy `skills/gsap-*` straight into the **project's**
+`.claude/skills/` (not user-level), discard the clone. Project-scoped means it
+commits with the repo and a cloud session gets it automatically once pushed —
+no separate bootstrap needed, unlike this skill itself.
+
+**Motion vs. GSAP — don't run both on the same element.** Once both are
+installed, `references/gotchas.md` has the decision rule for which to reach
+for per case; skim it before writing new animation code once GSAP is in the
+stack, not just at setup time.
 
 Read the output. It reports what installed, what was skipped, and what needs
 manual follow-up.
@@ -161,6 +181,8 @@ from section-specific ones before diagnosing — see the reference for how.
 | `@kokonutui/... not found` | Registry entry missing from `components.json` — re-run the script |
 | Bklit chart renders empty | Expected in the browser pane — see `gotchas.md` |
 | Impeccable install failed | Retry `npx impeccable install --scope=project --providers=claude`; needs Node 22.12+ |
+| `gsap` install failed | Retry `npm install gsap` |
+| gsap-skills clone failed | Retry manually: `git clone --depth 1 https://github.com/greensock/gsap-skills.git /tmp/gsap-skills && cp -r /tmp/gsap-skills/skills/gsap-* .claude/skills/` |
 
 ---
 
@@ -183,6 +205,11 @@ Two different portability stories:
   agent at a real terminal. A cloud build will hit this, report it as
   blocked, and move on; either run it locally once and commit the resulting
   config, or accept the gap.
+- **`gsap-skills` solves its own cloud problem, unlike this skill.** It's
+  installed project-scoped via clone-and-copy (see Phase 1), so once it's
+  installed once and committed, every future clone of that repo — including a
+  cloud checkout — has it. No separate bootstrap repo needed, unlike
+  `web-stack-init` itself.
 - **Browser-pane verification limits are environment-wide, not
   machine-wide** — no `requestAnimationFrame`, no `ResizeObserver`,
   `AnimatePresence` exits that never unmount (see `gotchas.md`). A cloud

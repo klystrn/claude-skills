@@ -23,11 +23,20 @@ Record every answer into a written brief (see `build-playbook.md`) before buildi
 - Soft / organic — rounded, warm, gradient-led
 - Brutalist — raw borders, exposed structure, deliberate friction
 
-**Motion intensity** *(drives how much Motion work follows)*
+**Motion intensity** *(drives how much animation work follows)*
 - Minimal — essentially static, motion only where it aids comprehension
 - Subtle — fade/slide reveals on scroll
 - Moderate — scroll reveals plus a few signature moments
 - Heavy — scroll-linked animation, layout transitions, parallax
+
+**Motion engine** *(only ask when GSAP is installed alongside Motion, and only
+at Moderate/Heavy intensity — Minimal/Subtle rarely needs more than Motion)*
+- Motion only — declarative, React-state-driven, the simpler default
+- GSAP for signature moments, Motion elsewhere — timeline choreography or a
+  specific plugin (SplitText, Flip, Draggable, ScrollSmoother) for one or two
+  standout sections, Motion for everything else
+- Let me choose per section — recommended default; see `gotchas.md`'s
+  Motion-vs-GSAP rule and don't ask again per section, just apply it
 
 **Theme**
 - System + toggle (both themes designed equally)

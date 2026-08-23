@@ -241,6 +241,46 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# 7b. GSAP (core library + official agent skills, greensock/gsap-skills)
+# ---------------------------------------------------------------------------
+log "GSAP"
+
+if node -e "require.resolve('gsap')" >/dev/null 2>&1; then
+  skip "gsap package"
+else
+  echo "  Installing gsap..."
+  if npm install gsap --silent; then
+    ok "gsap installed"
+  else
+    warn "gsap install failed — retry: npm install gsap"
+  fi
+fi
+
+# GreenSock ships their agent skills as plain SKILL.md files, same shape as
+# this skill — but only distributes them via `/plugin marketplace add`, which
+# refuses to run non-interactively. Clone-and-copy is the only unattended
+# path, same workaround this skill needed for itself. Installed
+# project-scoped (not user-level) so it travels with the repo — cloud
+# sessions get it automatically once committed, no separate bootstrap needed.
+if [ -d "$PROJECT_ROOT/.claude/skills/gsap-core" ]; then
+  skip "gsap-skills (already in .claude/skills/)"
+else
+  echo "  Installing GSAP agent skills (greensock/gsap-skills, project-scoped)..."
+  GSAP_SKILLS_TMP="$(mktemp -d)"
+  if git clone --depth 1 --quiet https://github.com/greensock/gsap-skills.git "$GSAP_SKILLS_TMP" 2>/dev/null; then
+    mkdir -p "$PROJECT_ROOT/.claude/skills"
+    for d in "$GSAP_SKILLS_TMP"/skills/gsap-*; do
+      [ -d "$d" ] || continue
+      cp -r "$d" "$PROJECT_ROOT/.claude/skills/$(basename "$d")"
+    done
+    rm -rf "$GSAP_SKILLS_TMP"
+    ok "gsap-skills installed (8 modules: core, timeline, scrolltrigger, plugins, utils, react, performance, frameworks)"
+  else
+    warn "gsap-skills clone failed — retry: git clone https://github.com/greensock/gsap-skills.git, then copy skills/gsap-* into .claude/skills/"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # 8. Patch known upstream bugs
 # ---------------------------------------------------------------------------
 log "Patching known registry bugs"
