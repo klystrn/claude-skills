@@ -1,6 +1,6 @@
 ---
 name: web-stack-init
-description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Sora UI, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, Sora UI, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
+description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Sora UI, Componentry, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, Sora UI, Componentry, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
 ---
 
 # Web Stack Init
@@ -59,12 +59,12 @@ bash scripts/setup-stack.sh
 ```
 
 It scaffolds (if asked), runs `shadcn init` with defaults, registers **all
-three** shadcn registries (`@bklit`, `@kokonutui`, `@soralabs`), verifies each
+four** shadcn registries (`@bklit`, `@kokonutui`, `@soralabs`, `@componentry`), verifies each
 one actually resolves, installs the bklit-ui skill and shadcn MCP, installs
 `motion`, installs `gsap` plus the official GreenSock agent skills, patches
 the known Bklit import bug, and installs Impeccable project-scoped.
 
-**Sora UI (`@soralabs`)** is a fourth registry, same pattern as Bklit/
+**Sora UI (`@soralabs`)** is a registry, same pattern as Bklit/
 KokonutUI — shadcn-compatible, `npx shadcn@latest add @soralabs/<name>` —
 but its primitives are built on Motion *and* GSAP both, so it's the natural
 place to reach once GSAP is in the stack. Every add re-prompts to overwrite
@@ -72,6 +72,13 @@ place to reach once GSAP is in the stack. Every add re-prompts to overwrite
 own docs MCP (`sora-ui`, separate from the shadcn MCP) is optional and hits
 the same permission-classifier wall as Motion's — hand the user the `claude
 mcp add` command, don't attempt to write `.mcp.json` directly.
+
+**Componentry (`@componentry`)** is a focused registry (50+ animated components)
+for polished, interactive UI — magnetic dock, particle typography, ripple
+transitions, 3D sliders, and similar sophisticated effects. Backed by Vercel's
+Open Source Program, it emphasizes editable source and is a perfect complement
+when the ask calls for signature moments requiring more visual polish than
+Sora UI's primitives or Bklit's charts alone provide.
 
 **Codrops** (tympanus.net/codrops) isn't installed — it's a reference site
 for GSAP technique research, not a registry or package. `WebFetch` a
@@ -201,6 +208,7 @@ from section-specific ones before diagnosing — see the reference for how.
 | gsap-skills clone failed | Retry manually: `git clone --depth 1 https://github.com/greensock/gsap-skills.git /tmp/gsap-skills && cp -r /tmp/gsap-skills/skills/gsap-* .claude/skills/` |
 | `@soralabs/... not found` | Registry entry missing from `components.json` — re-run the script |
 | Sora UI add re-prompts on `utils.ts` every time | Expected — its own copy is identical, just always declared as a shared dep; safe either way |
+| `@componentry/... not found` | Registry entry missing from `components.json` — re-run the script |
 
 ---
 
@@ -235,6 +243,9 @@ Two different portability stories:
   can't complete in an unattended cloud session — but skipping it costs
   nothing functionally, since the shadcn MCP (already configured) can still
   install `@soralabs/*` components without it.
+- **`@componentry` (Componentry) travels for free** — like `@soralabs` and the
+  other registries, it's one key in `components.json`, committed with
+  everything else, no filesystem transplant needed.
 - **Codrops needs nothing installed at all** — it's consulted via `WebFetch`
   at the point of need, works identically local or cloud, no portability
   story to worry about.

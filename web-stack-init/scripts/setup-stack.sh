@@ -120,7 +120,7 @@ fi
 # ---------------------------------------------------------------------------
 # 3. Register both shadcn registries
 # ---------------------------------------------------------------------------
-log "Registering shadcn registries (@bklit, @kokonutui, @soralabs)"
+log "Registering shadcn registries (@bklit, @kokonutui, @soralabs, @componentry)"
 
 node <<'NODE_EOF'
 const fs = require('fs');
@@ -136,13 +136,14 @@ try {
 
 config.registries = config.registries || {};
 
-// All three registries are needed. `shadcn mcp init` does NOT add any of
+// All four registries are needed. `shadcn mcp init` does NOT add any of
 // them — that was a long-standing gap in this script; the MCP server and
 // registry entries are independent things.
 const wanted = {
-  '@bklit':     'https://ui.bklit.com/r/{name}.json',
-  '@kokonutui': 'https://kokonutui.com/r/{name}.json',
-  '@soralabs':  'https://ui.soralabs.io.vn/r/{name}.json',
+  '@bklit':       'https://ui.bklit.com/r/{name}.json',
+  '@kokonutui':   'https://kokonutui.com/r/{name}.json',
+  '@soralabs':    'https://ui.soralabs.io.vn/r/{name}.json',
+  '@componentry': 'https://componentry.dev/r/{name}.json',
 };
 
 let changed = false;
@@ -169,9 +170,10 @@ log "Verifying registries are reachable"
 
 node <<'NODE_EOF'
 const targets = [
-  ['@bklit',     'https://bklit.com/r/registry.json'],
-  ['@kokonutui', 'https://kokonutui.com/r/registry.json'],
-  ['@soralabs',  'https://ui.soralabs.io.vn/r/registry.json'],
+  ['@bklit',       'https://bklit.com/r/registry.json'],
+  ['@kokonutui',   'https://kokonutui.com/r/registry.json'],
+  ['@soralabs',    'https://ui.soralabs.io.vn/r/registry.json'],
+  ['@componentry', 'https://componentry.dev/r/registry.json'],
 ];
 
 (async () => {

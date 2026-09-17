@@ -105,6 +105,11 @@ done — it catches module resolution and RSC boundary errors that `tsc` misses.
   primitives are pre-built on Motion and GSAP both. Check whether a
   `@soralabs/*` component already does what a Codrops technique would
   otherwise require hand-building.
+- **Componentry** (`@componentry`) for sophisticated animated effects — magnetic
+  dock, particle typography, ripple transitions, 3D sliders, etc. — positioned
+  as reference/inspiration to inspect and customize rather than drop-in
+  components. Use when the design calls for polish that goes beyond Motion/GSAP
+  primitives but you want to see how experienced teams approached the technique.
 
 ---
 

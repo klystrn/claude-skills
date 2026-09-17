@@ -81,6 +81,29 @@ applies inside a single file, not just across sections.
 
 ---
 
+## Componentry (`@componentry`)
+
+**Component names come from the registry index, not guesswork:**
+
+```bash
+curl -sL https://componentry.dev/r/registry.json
+```
+
+**Editable source-first design.** Unlike Bklit (charts) and Sora UI (animation
+primitives), Componentry is positioned as a reference library where you inspect
+the source, modify it, and integrate the approach into your own component, rather
+than using the installed version as-is. This is intentional — magnetic dock,
+particle effects, and 3D sliders are *techniques* you customize per project, not
+off-the-shelf widgets.
+
+**Most components use Motion or vanilla JS, not GSAP.** If you find a component
+you want to modify and it's using Motion, you can extend it with Motion hooks.
+If it's vanilla JS animation, check what it's doing before adding GSAP — you may
+be able to reimplement more simply within the Motion/GSAP decision rule you've
+already made for the rest of the site.
+
+---
+
 ## KokonutUI (`@kokonutui`)
 
 **`shadcn mcp init` does not add the registry.** The MCP server and the registry

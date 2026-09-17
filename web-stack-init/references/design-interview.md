@@ -91,6 +91,9 @@ skills, credentials/awards, testimonials, contact, blog/writing, photography.
 - KokonutUI-forward — lean on its blocks for cards/sections/interactions
 - Sora UI-forward — its Motion/GSAP-driven primitives (text effects, scroll
   interactions) for the signature moments, hand-built or lighter registries elsewhere
+- Componentry-forward — polished animated effects (magnetic dock, particle typography,
+  3D sliders) where visual sophistication is the ask; treat as reference/inspiration
+  to customize rather than drop-in widgets
 - Whatever fits best per section — no quota either way
 
 **Detail depth** *(portfolios and project-led sites)*
