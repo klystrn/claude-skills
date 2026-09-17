@@ -1,6 +1,6 @@
 ---
 name: web-stack-init
-description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Sora UI, Componentry, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, Sora UI, Componentry, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
+description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Sora UI, Componentry, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "web stack init," "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, Sora UI, Componentry, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
 ---
 
 # Web Stack Init
@@ -31,15 +31,31 @@ asks for a change after the first build, you're back in Phase 4.
 Check the working directory first.
 
 - **Empty directory** → ask what to scaffold before doing anything. Next.js is
-  the right default (both component registries are shadcn-based, which assumes
-  a React framework with an `@/*` import alias).
+  the right default (all four component registries are shadcn-based, which
+  assumes a React framework with an `@/*` import alias).
 - **Existing project** → check whether it's already set up. If `components.json`
-  has both `@bklit` and `@kokonutui` in `registries`, `package.json` has `motion`,
-  and `.mcp.json` has a shadcn entry — skip to Phase 2.
+  has `@kokonutui` in `registries`, `package.json` has `motion`, and `.mcp.json`
+  has a shadcn entry — skip to Phase 2. (Only check for `@bklit`/`@soralabs`/
+  `@componentry` too if you need to know whether it was set up **full**, not
+  just whether setup happened at all — a lite project is still "already set up.")
 - **Not a frontend project** (no `package.json`, or a pure backend/API repo) →
   skip this skill entirely.
-- **User only wants one of the three tools** → install that one directly, don't
+- **User only wants one specific tool** → install that one directly, don't
   run the full script.
+
+**Ask which preset, unless the user already said or it's obvious from context**
+(e.g. "I need charts" → full; "quick landing page" → lite):
+
+- **lite** *(default)* — shadcn + `@kokonutui` + Motion + Impeccable. For
+  marketing sites, portfolios, landing pages — anything that doesn't need
+  charts or a second animation engine.
+- **full** — everything: adds `@bklit`, `@soralabs`, `@componentry`, GSAP + its
+  8 agent skills. For chart-heavy dashboards or motion-showcase sites.
+
+Lite → full is a safe upgrade later (`--preset full`, re-run); it only adds,
+never removes. Full → lite isn't scripted — nothing forces removal, so if a
+project genuinely doesn't need GSAP/Bklit/Sora UI/Componentry after they were
+installed, just don't use them (or uninstall manually).
 
 Directory names with capitals or spaces will break `create-next-app` — scaffold
 into a lowercase subdirectory. The script enforces this.
@@ -48,21 +64,27 @@ into a lowercase subdirectory. The script enforces this.
 
 ## Phase 1 — Set up the stack
 
-One command. It is idempotent; re-running is safe.
+One command. It is idempotent; re-running is safe. Default preset is **lite**
+— pass `--preset full` once the Phase 0 question is answered, if that's the
+answer.
 
 ```bash
-# new project
+# new project, lite (default)
 bash scripts/setup-stack.sh --scaffold portfolio
 
+# new project, full
+bash scripts/setup-stack.sh --scaffold portfolio --preset full
+
 # existing project
-bash scripts/setup-stack.sh
+bash scripts/setup-stack.sh --preset full   # or omit --preset for lite
 ```
 
-It scaffolds (if asked), runs `shadcn init` with defaults, registers **all
-four** shadcn registries (`@bklit`, `@kokonutui`, `@soralabs`, `@componentry`), verifies each
-one actually resolves, installs the bklit-ui skill and shadcn MCP, installs
-`motion`, installs `gsap` plus the official GreenSock agent skills, patches
-the known Bklit import bug, and installs Impeccable project-scoped.
+It scaffolds (if asked), runs `shadcn init` with defaults, registers the
+preset's shadcn registries (lite: `@kokonutui` only; full: adds `@bklit`,
+`@soralabs`, `@componentry`), verifies each one actually resolves, installs
+the shadcn MCP, installs `motion` and Impeccable in both presets, and —
+full only — installs the bklit-ui skill, `gsap` plus the official GreenSock
+agent skills, and patches the known Bklit import bug.
 
 **Sora UI (`@soralabs`)** is a registry, same pattern as Bklit/
 KokonutUI — shadcn-compatible, `npx shadcn@latest add @soralabs/<name>` —
@@ -209,6 +231,8 @@ from section-specific ones before diagnosing — see the reference for how.
 | `@soralabs/... not found` | Registry entry missing from `components.json` — re-run the script |
 | Sora UI add re-prompts on `utils.ts` every time | Expected — its own copy is identical, just always declared as a shared dep; safe either way |
 | `@componentry/... not found` | Registry entry missing from `components.json` — re-run the script |
+| `@bklit`/`@soralabs`/`@componentry`/`gsap` missing on a project that should have them | Project was set up **lite** — re-run with `--preset full` to add them, non-destructively |
+| `Invalid --preset "x"` | Only `lite` or `full` are valid — check spelling |
 
 ---
 
@@ -219,13 +243,22 @@ Two different portability stories:
 - **Impeccable** needs nothing special — it's fetched fresh by `npx` every time
   Phase 1 runs, cloud or local, and once installed it's committed inside the
   project's `.claude/` so it travels with the repo from then on.
-- **This skill itself** (`web-stack-init`) does not self-install. It only
-  exists as files — either at `~/.claude/skills/web-stack-init` (this
-  machine only, invisible to a cloud sandbox) or committed into a project's
-  `.claude/skills/web-stack-init` (travels with that repo's clone, cloud
-  included). If a cloud session needs this skill, commit it into that
-  project's repo, or maintain a personal skills repo and have the cloud
-  session clone-and-copy it in as a first step.
+- **This skill itself** (`web-stack-init`) does not self-install, but Phase 1
+  now solves the common case automatically. Every run — either preset —
+  appends a bootstrap snippet to the project's `CLAUDE.md` (marked with
+  `<!-- web-stack-init:bootstrap -->`, written once, idempotent) instructing
+  any future session to clone-and-copy this skill from
+  `github.com/klystrn/claude-skills` if `.claude/skills/web-stack-init` isn't
+  already present. Since Claude Code reads `CLAUDE.md` automatically at
+  session start, a **cloud session opened later against a repo that has
+  already run Phase 1 once (locally or in an earlier cloud session)**
+  self-bootstraps with no manual first message — just say "web stack init" and
+  it reads the snippet and installs itself before responding.
+  **The one case this doesn't cover:** a repo where Phase 1 has *never* run
+  before (a brand-new empty cloud sandbox with nothing committed yet) has no
+  `CLAUDE.md` to read. That first run still needs either the manual bootstrap
+  command (see the `claude-skills` repo's README) or Phase 1 to have been run
+  locally at least once and pushed.
 - **`npx motion-ai` cannot complete in an unattended cloud session** — it
   hard-refuses non-interactive execution and needs a human choosing scope and
   agent at a real terminal. A cloud build will hit this, report it as

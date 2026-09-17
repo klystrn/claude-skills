@@ -6,12 +6,24 @@ stale, hand-copied one.
 
 Currently holds:
 
-- **`web-stack-init/`** — sets up the personal web-dev toolkit (Motion,
-  Bklit UI, KokonutUI, Impeccable) in a frontend project, runs a design
-  interview, builds the site, then hands off to a section-level edit loop.
-  See `web-stack-init/SKILL.md`.
+- **`web-stack-init/`** — sets up the personal web-dev toolkit (Motion, GSAP,
+  Bklit UI, KokonutUI, Sora UI, Componentry, Impeccable, Codrops as a
+  reference source) in a frontend project, runs a design interview, builds
+  the site, then hands off to a section-level edit loop. Two presets —
+  **lite** (shadcn + KokonutUI + Motion + Impeccable, the default) and
+  **full** (adds Bklit, Sora UI, Componentry, GSAP). See `web-stack-init/SKILL.md`.
 
 ## Using this in a new project (local or cloud)
+
+**If the target project has already run Phase 1 once** (locally, or in an
+earlier cloud session), you don't need to do anything manual — Phase 1 writes
+a self-bootstrap snippet into that project's own `CLAUDE.md`, which Claude
+Code reads automatically at the start of every session. Just say **"web stack
+init"** and it installs itself before responding.
+
+**For a genuinely first-ever run** (a brand-new project, or a cloud sandbox
+that has never touched this repo before), there's no `CLAUDE.md` yet to carry
+that instruction, so one manual step is unavoidable the first time only.
 
 This repo is **private**. A cloud Claude Code session can only clone it if
 it's already authenticated as you on GitHub — check that before relying on
