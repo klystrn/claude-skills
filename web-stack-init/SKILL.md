@@ -1,6 +1,6 @@
 ---
 name: web-stack-init
-description: Sets up the personal web-dev toolkit (Motion, GSAP, Bklit UI, KokonutUI, Sora UI, Componentry, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "web stack init," "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Bklit, KokonutUI, Sora UI, Componentry, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
+description: Sets up the personal web-dev toolkit (Motion, GSAP, Lenis, Vanta, Bklit UI, KokonutUI, Sora UI, Componentry, React Bits, Impeccable, Codrops as a reference source) in a new or existing frontend project, runs a design interview, and builds the site. Trigger at the start of ANY website, landing-page, dashboard, or frontend project, or when the user says "web stack init," "set up my web stack," "install my tools," "init my web project," "new website project," "start a new site," "my usual setup," or "my design tools." Also trigger when Motion, GSAP, Lenis, Vanta, Bklit, KokonutUI, Sora UI, Componentry, React Bits, or Impeccable are named in the context of starting fresh work. Run BEFORE writing any components.
 ---
 
 # Web Stack Init
@@ -49,13 +49,15 @@ Check the working directory first.
 - **lite** *(default)* — shadcn + `@kokonutui` + Motion + Impeccable. For
   marketing sites, portfolios, landing pages — anything that doesn't need
   charts or a second animation engine.
-- **full** — everything: adds `@bklit`, `@soralabs`, `@componentry`, GSAP + its
-  8 agent skills. For chart-heavy dashboards or motion-showcase sites.
+- **full** — everything: adds `@bklit`, `@soralabs`, `@componentry`,
+  `@react-bits`, GSAP + its 8 agent skills, Lenis, and Vanta (+ `three`/`p5`).
+  For chart-heavy dashboards or motion-showcase sites.
 
 Lite → full is a safe upgrade later (`--preset full`, re-run); it only adds,
 never removes. Full → lite isn't scripted — nothing forces removal, so if a
-project genuinely doesn't need GSAP/Bklit/Sora UI/Componentry after they were
-installed, just don't use them (or uninstall manually).
+project genuinely doesn't need GSAP/Bklit/Sora UI/Componentry/React Bits/
+Lenis/Vanta after they were installed, just don't use them (or uninstall
+manually).
 
 Directory names with capitals or spaces will break `create-next-app` — scaffold
 into a lowercase subdirectory. The script enforces this.
@@ -81,10 +83,20 @@ bash scripts/setup-stack.sh --preset full   # or omit --preset for lite
 
 It scaffolds (if asked), runs `shadcn init` with defaults, registers the
 preset's shadcn registries (lite: `@kokonutui` only; full: adds `@bklit`,
-`@soralabs`, `@componentry`), verifies each one actually resolves, installs
-the shadcn MCP, installs `motion` and Impeccable in both presets, and —
-full only — installs the bklit-ui skill, `gsap` plus the official GreenSock
-agent skills, and patches the known Bklit import bug.
+`@soralabs`, `@componentry`, `@react-bits`), verifies each one actually
+resolves, installs the shadcn MCP, installs `motion` and Impeccable in both
+presets, and — full only — installs the bklit-ui skill, `gsap` plus the
+official GreenSock agent skills, `lenis`, and `vanta` (+ `three`/`p5`), and
+patches the known Bklit import bug.
+
+**Before adding any component from any registry, check
+`references/registry-routing.md`.** With five registries and two animation
+engines now in the stack, several of them cover overlapping ground (Sora UI,
+Componentry, and React Bits all do "animated interactive components" in
+different flavors) — the routing table assigns each kind of need to exactly
+one source so component selection stays consistent build to build instead of
+drifting by session. Check it before Phase 2's component-sourcing question
+and again at each section in Phase 3, not just once.
 
 **Sora UI (`@soralabs`)** is a registry, same pattern as Bklit/
 KokonutUI — shadcn-compatible, `npx shadcn@latest add @soralabs/<name>` —
@@ -101,6 +113,26 @@ transitions, 3D sliders, and similar sophisticated effects. Backed by Vercel's
 Open Source Program, it emphasizes editable source and is a perfect complement
 when the ask calls for signature moments requiring more visual polish than
 Sora UI's primitives or Bklit's charts alone provide.
+
+**React Bits (`@react-bits`)** is a large registry (~205 components × 4
+language/style variants each — always add the `-TS-TW` variant, see
+`gotchas.md`) whose real differentiator is small interaction/cursor candy
+(click sparks, custom cursors) that Sora UI and Componentry don't cover as
+deeply. It genuinely overlaps the other two in places — that's exactly what
+`registry-routing.md` exists to resolve, don't reach for it by default.
+
+**Lenis** (npm package `lenis`, `lenis/react` for `<ReactLenis>`/`useLenis`)
+is a smooth-scroll library, not a shadcn registry. It changes global scroll
+semantics, so once it's added, both GSAP ScrollTrigger and Motion's
+`useScroll` need explicit wiring to stay in sync — see `gotchas.md` before
+adding it to a project that already has scroll-driven sections built.
+
+**Vanta** (npm packages `vanta` + `three` + `p5`, installed together since
+different effects need different peer deps) renders full WebGL/canvas
+animated backgrounds — a genuine gap the rest of the stack doesn't fill, not
+an overlap. Client-only (`"use client"` + `useEffect` init), and the effect
+instance must be `.destroy()`ed on unmount or it leaks a WebGL context — see
+`gotchas.md`.
 
 **Codrops** (tympanus.net/codrops) isn't installed — it's a reference site
 for GSAP technique research, not a registry or package. `WebFetch` a
@@ -187,9 +219,14 @@ Design system before components; content extracted to `src/data/` before layout;
 
 **Read `references/gotchas.md` before adding any registry component.** It covers
 the Bklit import bug that reverts on every add, the `*-example` items that
-silently overwrite `page.tsx`, and — importantly — why charts and scroll
-animations cannot be visually verified in the Claude Code browser pane, and what
-to tell the user about it.
+silently overwrite `page.tsx`, React Bits' variant-naming, Lenis/ScrollTrigger/
+useScroll desync, Vanta's SSR and cleanup requirements, and — importantly —
+why charts and scroll animations cannot be visually verified in the Claude
+Code browser pane, and what to tell the user about it.
+
+**Check `references/registry-routing.md` before picking a source for any
+given need** — which registry/library owns which kind of component, so the
+choice is the same whether this is section 1 or section 8.
 
 ---
 
@@ -231,8 +268,11 @@ from section-specific ones before diagnosing — see the reference for how.
 | `@soralabs/... not found` | Registry entry missing from `components.json` — re-run the script |
 | Sora UI add re-prompts on `utils.ts` every time | Expected — its own copy is identical, just always declared as a shared dep; safe either way |
 | `@componentry/... not found` | Registry entry missing from `components.json` — re-run the script |
-| `@bklit`/`@soralabs`/`@componentry`/`gsap` missing on a project that should have them | Project was set up **lite** — re-run with `--preset full` to add them, non-destructively |
+| `@bklit`/`@soralabs`/`@componentry`/`@react-bits`/`gsap`/`lenis`/`vanta` missing on a project that should have them | Project was set up **lite** — re-run with `--preset full` to add them, non-destructively |
 | `Invalid --preset "x"` | Only `lite` or `full` are valid — check spelling |
+| `@react-bits/ClickSpark not found` (bare name, no suffix) | React Bits requires a variant suffix — use `@react-bits/ClickSpark-TS-TW` |
+| Vanta crashes with `window is not defined` | Missing `"use client"` or initialized outside `useEffect` — see `gotchas.md` |
+| Scroll-triggered animation stopped firing after adding Lenis | ScrollTrigger/`useScroll` need explicit Lenis wiring — see `gotchas.md` |
 
 ---
 
@@ -279,6 +319,11 @@ Two different portability stories:
 - **`@componentry` (Componentry) travels for free** — like `@soralabs` and the
   other registries, it's one key in `components.json`, committed with
   everything else, no filesystem transplant needed.
+- **`@react-bits` travels for free** — same as the other registries, one key
+  in `components.json`.
+- **Lenis and Vanta travel for free** — plain npm packages, committed via
+  `package.json`/`package-lock.json` like `motion` or `gsap`; no special
+  cloud handling needed.
 - **Codrops needs nothing installed at all** — it's consulted via `WebFetch`
   at the point of need, works identically local or cloud, no portability
   story to worry about.
@@ -287,3 +332,30 @@ Two different portability stories:
   `AnimatePresence` exits that never unmount (see `gotchas.md`). A cloud
   session hits the exact same limits; motion and chart work need a human's
   eyes regardless of where the build ran.
+
+---
+
+## Future direction — a searchable design-element picker
+
+Not built, not scheduled — recorded here because it comes up. The idea: a
+UI (Artifact prototype first, real app later if it earns it) that indexes
+every item across all five registries, lets you browse/search/select
+visually, and exports a plain list — `{component, source, intendedUse}` per
+item — that Phase 2 reads instead of (or alongside) running the interview.
+
+**Why this isn't built yet:** `registry-routing.md` + a live `curl
+.../registry.json` at the point of need already gets most of the value — a
+consistent, explainable "why this component" decision — without maintaining
+a second, indexed catalog that goes stale the moment any of the five
+registries changes (as they already have — Sora UI's item count moved from
+139 to 69 between two setup runs in the same week). A picker's index is a
+new source of truth to keep in sync; the routing table has none of that
+because it always defers to the live registry.
+
+**If it gets built anyway:** the export format matters more than the picker
+UI itself. A small, well-scoped JSON file at the project root
+(`{component, source, intendedUse}[]`) that Phase 2 can read and skip
+straight to Phase 3 with is a contained addition to this skill. The picker
+that produces that file is the larger, separate project — build it only
+after the routing table has been used across a few real builds and still
+feels like it wants a visual browser, not before.

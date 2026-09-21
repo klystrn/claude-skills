@@ -104,6 +104,101 @@ already made for the rest of the site.
 
 ---
 
+## React Bits (`@react-bits`)
+
+**Every component ships as 4 separate registry items** — `<Name>-JS-CSS`,
+`<Name>-JS-TW`, `<Name>-TS-CSS`, `<Name>-TS-TW` (JavaScript/TypeScript ×
+plain CSS/Tailwind). This stack scaffolds TypeScript + Tailwind, so **always
+add the `-TS-TW` variant** — e.g. `npx shadcn@latest add
+@react-bits/ClickSpark-TS-TW`, never the bare `ClickSpark` (doesn't exist)
+or a `-JS-` / `-CSS` variant (wrong language or drops Tailwind classes for
+hand-rolled CSS that won't match this project's tokens). Registry has ~205
+unique components × 4 variants = ~820 total entries — filter for `-TS-TW`
+when browsing the index, not the raw count.
+
+**Genuinely overlaps with Sora UI and Componentry** — all three cover
+"animated interactive components" territory. Don't reach for React Bits by
+default; check `references/registry-routing.md` first. Its actual
+differentiator is small interaction/cursor candy (`BlobCursor`, `ClickSpark`,
+`Crosshair`) that the other two don't cover as deeply.
+
+**Component names from the registry index, not guesswork:**
+
+```bash
+curl -sL https://reactbits.dev/r/registry.json
+```
+
+---
+
+## Lenis (smooth scroll)
+
+**Changes scroll semantics for the whole page** — once installed and wired
+up (`<ReactLenis root>` wrapping the app, from `lenis/react`), Lenis
+intercepts and virtualizes native scroll. Both GSAP ScrollTrigger and
+Motion's `useScroll` read scroll position, and **both need explicit wiring
+once Lenis is active** or their triggers desync (they read the old native
+scroll semantics Lenis has already replaced):
+
+```js
+// GSAP ScrollTrigger + Lenis
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+```
+
+Motion's `useScroll` needs a similar bridge — don't assume it "just works"
+once Lenis is added; verify against Motion's own Lenis-integration docs
+before trusting an existing `useScroll`-based section (hero parallax, the
+timeline's horizontal scroll-container) after adding Lenis to a project that
+already has one.
+
+**Not a registry component** — plain npm package (`lenis`), `lenis/react`
+exports `<ReactLenis>` and `useLenis`. Import `lenis/dist/lenis.css` once at
+the root.
+
+**Adding Lenis to an existing project is riskier than adding it at the
+start.** If Motion's `useScroll`/`useTransform` sections (hero, timeline)
+were built and verified *before* Lenis went in, re-verify all of them —
+don't assume they still work unchanged.
+
+---
+
+## Vanta (three.js/p5.js animated backgrounds)
+
+**SSR breaks it — must be client-only.** Vanta needs `window`/`document` for
+its WebGL/canvas context, so any component using it needs `"use client"`
+**and** must only initialize inside `useEffect` (never at module scope or
+during render) — a bare import at the top of a server component will crash
+the build.
+
+**Different effects depend on different libraries.** Most effects (`FOG`,
+`NET`, `WAVES`, `RINGS`, `HALO`, `DOTS`, `TOPOLOGY`, `GLOBE`, `CLOUDS`) need
+only `three`; a few (`TRUNK`, `BIRDS`, `CELLS`) also need `p5`. The setup
+script installs both `three` and `p5` unconditionally so any effect works —
+don't strip one out without checking which effect is actually in use.
+
+**Must destroy the effect instance on unmount**, or navigating away leaves a
+dangling WebGL context (a real memory leak, not just wasted cycles — browsers
+cap the number of live WebGL contexts per page):
+
+```js
+useEffect(() => {
+  const effect = VANTA.FOG({ el: ref.current, THREE, /* ...opts */ });
+  return () => effect.destroy();
+}, []);
+```
+
+**No official React bindings** — the common community pattern is a ref +
+`useEffect` init/destroy as above, dynamically imported (`next/dynamic`,
+`ssr: false`) if the component isn't already behind a client boundary.
+
+**Background-only, not a general animation tool** — Vanta fills a real gap
+the rest of the stack doesn't cover (full WebGL/canvas backgrounds), not an
+overlap. Reach for it specifically when the brief calls for an animated
+background field, not for foreground UI motion — that's Motion/GSAP's job.
+
+---
+
 ## KokonutUI (`@kokonutui`)
 
 **`shadcn mcp init` does not add the registry.** The MCP server and the registry

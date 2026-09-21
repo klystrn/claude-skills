@@ -101,15 +101,38 @@ done — it catches module resolution and RSC boundary errors that `tsc` misses.
   data/tokens, don't copy source wholesale (`gotchas.md` has the copyright
   note). Reach for this on the one or two sections that actually warrant it,
   not as a first move on every section.
-- **Sora UI** (`@soralabs`) is often the faster path to the same result — its
-  primitives are pre-built on Motion and GSAP both. Check whether a
-  `@soralabs/*` component already does what a Codrops technique would
-  otherwise require hand-building.
-- **Componentry** (`@componentry`) for sophisticated animated effects — magnetic
-  dock, particle typography, ripple transitions, 3D sliders, etc. — positioned
-  as reference/inspiration to inspect and customize rather than drop-in
-  components. Use when the design calls for polish that goes beyond Motion/GSAP
-  primitives but you want to see how experienced teams approached the technique.
+- **Before reaching for any registry to fill a signature moment, check
+  `references/registry-routing.md`.** Sora UI, Componentry, and React Bits
+  all plausibly cover "polished animated component" territory — the routing
+  table assigns each to a specific niche (Sora UI: text/scroll effects built
+  on Motion+GSAP; Componentry: reference-only one-off polish; React Bits:
+  cursor/micro-interaction candy) so the choice doesn't drift section to
+  section.
+
+### Lenis (smooth scroll)
+
+- Wire it up **once, at the app root**, before building any scroll-driven
+  section — not after. `<ReactLenis root>` from `lenis/react`, import
+  `lenis/dist/lenis.css` once.
+- If GSAP ScrollTrigger or Motion's `useScroll` are already in use anywhere,
+  they need explicit Lenis wiring or they'll desync — see `gotchas.md` for
+  the exact `lenis.on('scroll', ScrollTrigger.update)` / `gsap.ticker.add`
+  pattern. Do this in the same pass as adding Lenis, not as an afterthought.
+- Only relevant at Heavy motion intensity per the design brief — don't add it
+  reflexively to every full-preset project.
+
+### Vanta (animated backgrounds)
+
+- Client-only: `"use client"` component, initialize inside `useEffect`, never
+  at module scope.
+- Always return a cleanup function that calls `.destroy()` on the effect
+  instance — an undestroyed Vanta instance leaks a WebGL context on
+  navigation.
+- Background-only — it fills the hero/footer canvas, not foreground UI
+  motion. If a design brief calls for both an animated background *and*
+  foreground text motion in the same section, Vanta handles the background
+  layer, Motion/GSAP handle the foreground layer — don't try to make one
+  library do both.
 
 ---
 

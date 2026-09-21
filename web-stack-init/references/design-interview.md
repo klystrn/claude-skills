@@ -72,6 +72,14 @@ at Moderate/Heavy intensity — Minimal/Subtle rarely needs more than Motion)*
 - Hybrid — vertical page, specific sections are horizontal rails
 - Pinned scroll-scrub — sections pin while scroll drives an animation
 
+**Scroll feel** *(only if Lenis is installed — i.e. full preset — and Heavy
+motion was picked; native scroll is fine for everything below that)*
+- Native — no smoothing, default browser scroll
+- Smoothed (Lenis) — inertia/easing on scroll, the polish heavy-motion sites
+  usually want; requires wiring GSAP ScrollTrigger and/or Motion's `useScroll`
+  to it, see `gotchas.md` — do this wiring at the same time as adding Lenis,
+  not after other scroll-driven sections are already built
+
 **Reduced motion**
 - Full fallback — respect `prefers-reduced-motion`, all content still reachable
 - Reduce, don't remove — keep fades, drop parallax and scrub
@@ -85,7 +93,10 @@ at Moderate/Heavy intensity — Minimal/Subtle rarely needs more than Motion)*
 for a portfolio that's typically: hero, about, experience/timeline, projects,
 skills, credentials/awards, testimonials, contact, blog/writing, photography.
 
-**Component sourcing**
+**Component sourcing** — this sets a whole-project *bias*, not a per-component
+rule. Once building starts, check `references/registry-routing.md` for each
+actual need — it assigns each kind of component to exactly one source so the
+choice stays consistent across sections, whichever bias is picked here.
 - Charts as a feature — Bklit charts central to the design
 - Light accents — mostly hand-built, registry components where they earn it
 - KokonutUI-forward — lean on its blocks for cards/sections/interactions
@@ -94,7 +105,10 @@ skills, credentials/awards, testimonials, contact, blog/writing, photography.
 - Componentry-forward — polished animated effects (magnetic dock, particle typography,
   3D sliders) where visual sophistication is the ask; treat as reference/inspiration
   to customize rather than drop-in widgets
-- Whatever fits best per section — no quota either way
+- Animated backgrounds (Vanta) for one or two key sections — hero/footer WebGL
+  fields, not a whole-site treatment
+- Whatever fits best per section — no quota either way (default: check the
+  routing table per section as it comes up)
 
 **Detail depth** *(portfolios and project-led sites)*
 - Cards only

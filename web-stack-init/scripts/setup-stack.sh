@@ -13,8 +13,9 @@
 #
 #   --preset full
 #     - everything in lite, PLUS:
-#     - @bklit, @soralabs, @componentry registries + bklit-ui skill
+#     - @bklit, @soralabs, @componentry, @react-bits registries + bklit-ui skill
 #     - GSAP (core library + 8 official agent skills, greensock/gsap-skills)
+#     - Lenis (smooth scroll) + Vanta (three.js/p5.js animated backgrounds)
 #     For chart-heavy dashboards or motion-showcase sites.
 #
 # Both presets always write/refresh a CLAUDE.md bootstrap snippet at the
@@ -148,7 +149,7 @@ fi
 # 3. Register shadcn registries (lite: @kokonutui only; full: all four)
 # ---------------------------------------------------------------------------
 if [ "$PRESET" = "full" ]; then
-  log "Registering shadcn registries (@bklit, @kokonutui, @soralabs, @componentry)"
+  log "Registering shadcn registries (@bklit, @kokonutui, @soralabs, @componentry, @react-bits)"
 else
   log "Registering shadcn registries (@kokonutui)"
 fi
@@ -176,6 +177,7 @@ const full = {
   '@kokonutui':   'https://kokonutui.com/r/{name}.json',
   '@soralabs':    'https://ui.soralabs.io.vn/r/{name}.json',
   '@componentry': 'https://componentry.dev/r/{name}.json',
+  '@react-bits':  'https://reactbits.dev/r/{name}.json',
 };
 const wanted = preset === 'full' ? full : { '@kokonutui': full['@kokonutui'] };
 
@@ -208,6 +210,7 @@ const full = [
   ['@kokonutui',   'https://kokonutui.com/r/registry.json'],
   ['@soralabs',    'https://ui.soralabs.io.vn/r/registry.json'],
   ['@componentry', 'https://componentry.dev/r/registry.json'],
+  ['@react-bits',  'https://reactbits.dev/r/registry.json'],
 ];
 const targets = preset === 'full' ? full : full.filter(([name]) => name === '@kokonutui');
 
@@ -322,6 +325,42 @@ else
       ok "gsap-skills installed (8 modules: core, timeline, scrolltrigger, plugins, utils, react, performance, frameworks)"
     else
       warn "gsap-skills clone failed — retry: git clone https://github.com/greensock/gsap-skills.git, then copy skills/gsap-* into .claude/skills/"
+    fi
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# 7c. Lenis (smooth scroll) + Vanta (three.js/p5.js animated backgrounds)
+#     full preset only — both change global scroll/canvas behavior in ways a
+#     simple lite site doesn't need to take on.
+# ---------------------------------------------------------------------------
+log "Lenis + Vanta"
+
+if [ "$PRESET" != "full" ]; then
+  skip "lenis + vanta (lite preset — re-run with --preset full)"
+else
+  if node -e "require.resolve('lenis')" >/dev/null 2>&1; then
+    skip "lenis package"
+  else
+    echo "  Installing lenis..."
+    if npm install lenis --silent; then
+      ok "lenis installed (import ReactLenis, useLenis from 'lenis/react')"
+    else
+      warn "lenis install failed — retry: npm install lenis"
+    fi
+  fi
+
+  # Vanta needs three.js for most effects, p5.js for a few (TRUNK, FOG among
+  # others use p5) — install both so any effect works; see gotchas.md for
+  # which effect needs which.
+  if node -e "require.resolve('vanta')" >/dev/null 2>&1; then
+    skip "vanta package"
+  else
+    echo "  Installing vanta + three + p5..."
+    if npm install vanta three p5 --silent; then
+      ok "vanta installed (with three + p5 peer deps)"
+    else
+      warn "vanta install failed — retry: npm install vanta three p5"
     fi
   fi
 fi
